@@ -334,12 +334,7 @@ function Task()
 				Notification("Info", "Extra spaces detected in the key. Verifying without spaces...")
 			end
 
-			local success, status = pcall(api.check_key, cleaned_key)
-			if not success then
-				Notification("Error", "An unexpected error occurred while verifying the key.")
-				return nil
-			end
-
+			
 			if status.code == "KEY_VALID" then
 
 				if CoreGui:FindFirstChild("System") then
