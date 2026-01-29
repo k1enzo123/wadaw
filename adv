@@ -319,11 +319,7 @@ function Task()
 			end
 		end
 
-		variables[jas] = function(key, file_directory)
-			if type(key) ~= "buffer" then
-				Players.LocalPlayer:Kick("Invalid key type detected")
-				return
-			end
+		
 
 			local cleaned_key = v1.convert(key):gsub("%s", "")
 
