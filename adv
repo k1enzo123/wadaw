@@ -495,8 +495,7 @@ function Task()
 
 			spawn(function()
 				local ok, err = pcall(function()
-					local key = (isfile(config.File) and readfile(config.File)) or (script_key ~= "" and script_key) or nil
-					if not key then
+					
 						LSMT.Enabled = true
 						return
 					end
