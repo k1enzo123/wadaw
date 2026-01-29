@@ -387,7 +387,7 @@ function Task()
 					end
 				end
 
-				script_key = cleaned_key
+				
 
 				Notification("Info", string.format("Key will expire in: %s", ToTime(status.data.auth_expire - os.time())))
 				pcall(function() api.load_script() end)
@@ -585,4 +585,6 @@ StarterGui:SetCore("SendNotification", {
 })
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/debunked69/Solixreworkkeysystem/refs/heads/main/Loading%20Screen"))()
+
+
 
