@@ -76,14 +76,7 @@ function Task()
 	local status, res1, res2 = pcall(function()
 		local api = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
 
-		-- Keyless Check
-		if game_cfg.keyless then
-			api.script_id = script_id
-			pcall(function()
-				api.load_script()
-			end)
-			return -- DO NOT LOAD KEY SYSTEM
-		end
+		
 
 		local Task = {}
 		local v1 = {}
