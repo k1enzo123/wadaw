@@ -19,7 +19,7 @@ local BindableFunction = Instance.new("BindableFunction")
 -- ===================== GAME LIST =====================
 local ListGame = {
 	["3808223175"] = { id = "4fe2dfc202115670b1813277df916ab2", keyless = false }, -- Jujutsu Infinite
-	["994732206"]  = { id = "e2718ddebf562c5c4080dfce26b09398", keyless = true }, -- Blox Fruits
+	["994732206"]  = { id = "e2718ddebf562c5c4080dfce26b09398", keyless = true}, -- Blox Fruits
 	["1650291138"] = { id = "9b64d07193c7c2aef970d57aeb286e70", keyless = false }, -- Demon Fall
 	["5750914919"] = { id = "8bbc8a7c4e023bc0c80799fec3233162", keyless = false }, -- Fisch
 	["3317771874"] = { id = "e95ef6f27596e636a7d706375c040de4", keyless = false }, -- Pet Simulator 99
@@ -36,7 +36,7 @@ local ListGame = {
 	["7671049560"] = { id = "c0b41e859f576fb70183206224d4a75f", keyless = false }, -- The Forge
 	["6760085372"] = { id = "e380382a05647eabda3a9892f95952c6", keyless = true }, -- Jujutsu: Zero
 	["9266873836"] = { id = "3f9d315017ec895ded5c3350fd6e45a0", keyless = true }, -- Anime Fighting Simulator
-	["9363735110"] = {id = "4948419832e0bd4aa588e628c45b6f8d", keyless = true }, -- Escape Tsunami For Brainrots!
+	["9363735110"] = {id = "4948419832e0bd4aa588e628c45b6f8d", keyless = false }, -- Escape Tsunami For Brainrots!
 }
 
 -- ===================== GAME RESOLUTION =====================
@@ -72,11 +72,7 @@ function DeleteAll(path)
 	end
 end
 
-function Task()
-	local status, res1, res2 = pcall(function()
-		local api = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
-
-		
+f
 
 		local Task = {}
 		local v1 = {}
@@ -319,7 +315,11 @@ function Task()
 			end
 		end
 
-
+		variables[jas] = function(key, file_directory)
+			if type(key) ~= "buffer" then
+				Players.LocalPlayer:Kick("Invalid key type detected")
+				return
+			end
 
 			local cleaned_key = v1.convert(key):gsub("%s", "")
 
@@ -334,7 +334,13 @@ function Task()
 				Notification("Info", "Extra spaces detected in the key. Verifying without spaces...")
 			end
 
-		
+			local success, status = pcall(api.check_key, cleaned_key)
+			if not success then
+				Notification("Error", "An unexpected error occurred while verifying the key.")
+				return nil
+			end
+
+			if status.code == "KEY_VALID" then
 
 				if CoreGui:FindFirstChild("System") then
 					CoreGui.System:Destroy()
@@ -370,7 +376,7 @@ function Task()
 					end
 				end
 
-				script_key = cleaned_key
+				
 
 				Notification("Info", string.format("Key will expire in: %s", ToTime(status.data.auth_expire - os.time())))
 				pcall(function() api.load_script() end)
@@ -540,14 +546,7 @@ end
 
 local Task = Task()
 
-local Window = Task:Window({
-	File = "solixhub/savedkey.txt",
-	Discord = "https://discord.gg/solixhub",
-	DisplayName = "SolixHub FREE 20+ Games",
-	MinIcon = "rbxassetid://102391696721436",
-	Linkvertise = "https://ads.luarmor.net/get_key?for=Solixhub_Free_KeySystem-OWlLHDMCHADk",
-	Rinku = "https://ads.luarmor.net/get_key?for=Solix_Free_Keysystems-pqJCGTqnTsng",
-})
+
 
 BindableFunction.OnInvoke = function(v)
 	if v == "Yes" then
