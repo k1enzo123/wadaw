@@ -18,25 +18,25 @@ local BindableFunction = Instance.new("BindableFunction")
 
 -- ===================== GAME LIST =====================
 local ListGame = {
-	["3808223175"] = { id = "4fe2dfc202115670b1813277df916ab2", keyless = true }, -- Jujutsu Infinite
-	["994732206"]  = { id = "e2718ddebf562c5c4080dfce26b09398", keyless = true }, -- Blox Fruits
-	["1650291138"] = { id = "9b64d07193c7c2aef970d57aeb286e70", keyless = true }, -- Demon Fall
-	["5750914919"] = { id = "8bbc8a7c4e023bc0c80799fec3233162", keyless = true }, -- Fisch
-	["3317771874"] = { id = "e95ef6f27596e636a7d706375c040de4", keyless = true }, -- Pet Simulator 99
-	["1511883870"] = { id = "fefdf5088c44beb34ef52ed6b520507c", keyless = true }, -- Shindo Life
-	["6035872082"] = { id = "3bb7969a9ecb9e317b0a24681327c2e2", keyless = true }, -- Rivals
-	["245662005"]  = { id = "21ad7f491e4658e9dc9529a60c887c6e", keyless = true }, -- Jailbreak
-	["7018190066"] = { id = "98f5c64a0a9ecca29517078597bbcbdb", keyless = true }, -- Dead Rails
-	["7074860883"] = { id = "0c8fdf9bb25a6a7071731b72a90e3c69", keyless = true }, -- Arise Crossover
-	["7436755782"] = { id = "e4ea33e9eaf0ae943d59ea98f2444ebe", keyless = true }, -- Grow a Garden
+	["3808223175"] = { id = "4fe2dfc202115670b1813277df916ab2", keyless = false }, -- Jujutsu Infinite
+	["994732206"]  = { id = "e2718ddebf562c5c4080dfce26b09398", keyless = false }, -- Blox Fruits
+	["1650291138"] = { id = "9b64d07193c7c2aef970d57aeb286e70", keyless = false }, -- Demon Fall
+	["5750914919"] = { id = "8bbc8a7c4e023bc0c80799fec3233162", keyless = false }, -- Fisch
+	["3317771874"] = { id = "e95ef6f27596e636a7d706375c040de4", keyless = false }, -- Pet Simulator 99
+	["1511883870"] = { id = "fefdf5088c44beb34ef52ed6b520507c", keyless = false }, -- Shindo Life
+	["6035872082"] = { id = "3bb7969a9ecb9e317b0a24681327c2e2", keyless = false }, -- Rivals
+	["245662005"]  = { id = "21ad7f491e4658e9dc9529a60c887c6e", keyless = false }, -- Jailbreak
+	["7018190066"] = { id = "98f5c64a0a9ecca29517078597bbcbdb", keyless = false }, -- Dead Rails
+	["7074860883"] = { id = "0c8fdf9bb25a6a7071731b72a90e3c69", keyless = false }, -- Arise Crossover
+	["7436755782"] = { id = "e4ea33e9eaf0ae943d59ea98f2444ebe", keyless = false }, -- Grow a Garden
 	["7326934954"] = { id = "00e140acb477c5ecde501c1d448df6f9", keyless = true }, -- 99 Nights in the Forest
-	["8316902627"] = { id = "641e8d02ffba666d731614a32c08eacf", keyless = true }, -- Plants vs Brainrot
-	["8321616508"] = { id = "2cd0668c5caf66913e7314cdb6d1eb9b", keyless = true }, -- Rogue Piece
-	["3457700596"] = { id = "639c0b275001182cca67ac85f5bd529f", keyless = true }, -- Fruit Battlegrounds
-	["7671049560"] = { id = "c0b41e859f576fb70183206224d4a75f", keyless = true }, -- The Forge
+	["8316902627"] = { id = "641e8d02ffba666d731614a32c08eacf", keyless = false }, -- Plants vs Brainrot
+	["8321616508"] = { id = "2cd0668c5caf66913e7314cdb6d1eb9b", keyless = false }, -- Rogue Piece
+	["3457700596"] = { id = "639c0b275001182cca67ac85f5bd529f", keyless = false }, -- Fruit Battlegrounds
+	["7671049560"] = { id = "c0b41e859f576fb70183206224d4a75f", keyless = false }, -- The Forge
 	["6760085372"] = { id = "e380382a05647eabda3a9892f95952c6", keyless = true }, -- Jujutsu: Zero
 	["9266873836"] = { id = "3f9d315017ec895ded5c3350fd6e45a0", keyless = true }, -- Anime Fighting Simulator
-	["9363735110"] = {id = "4948419832e0bd4aa588e628c45b6f8d", keyless = true }, -- Escape Tsunami For Brainrots!
+	["9363735110"] = {id = "4948419832e0bd4aa588e628c45b6f8d", keyless = false }, -- Escape Tsunami For Brainrots!
 }
 
 -- ===================== GAME RESOLUTION =====================
@@ -326,7 +326,11 @@ function Task()
 			end
 		end
 
-		
+		variables[jas] = function(key, file_directory)
+			if type(key) ~= "buffer" then
+				Players.LocalPlayer:Kick("Invalid key type detected")
+				return
+			end
 
 			local cleaned_key = v1.convert(key):gsub("%s", "")
 
@@ -341,7 +345,11 @@ function Task()
 				Notification("Info", "Extra spaces detected in the key. Verifying without spaces...")
 			end
 
-			N
+			local success, status = pcall(api.check_key, cleaned_key)
+			if not success then
+				Notification("Error", "An unexpected error occurred while verifying the key.")
+				return nil
+			end
 
 			if status.code == "KEY_VALID" then
 
@@ -465,7 +473,22 @@ function Task()
 				Close(Main)
 			end)
 
-			
+			Keybox.FocusLost:Connect(function()
+				if Keybox.Text ~= "" then
+					if variables[jas](v1.revert(Keybox.Text), config.File) then
+						TweenService:Create(Keybox, TweenInfo.new(0.65), {BackgroundColor3 = Color3.fromRGB(60, 255, 60), BackgroundTransparency = 0.4}):Play()
+						wait(0.65)
+						TweenService:Create(Keybox, TweenInfo.new(0.65), {BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.9}):Play()
+						pcall(function() Close(Main) end)
+					else
+						Keybox.Text = ""
+						TweenService:Create(Keybox, TweenInfo.new(0.65), {BackgroundColor3 = Color3.fromRGB(255, 60, 60), BackgroundTransparency = 0.4}):Play()
+						wait(0.65)
+						TweenService:Create(Keybox, TweenInfo.new(0.65), {BackgroundColor3 = Color3.fromRGB(255, 255, 255), BackgroundTransparency = 0.9}):Play()
+					end
+				end
+			end)
+
 			Rinku.MouseButton1Click:Connect(function()
 				coppy(config.Rinku)
 				Notification("Success", "Link copied to clipboard!")
