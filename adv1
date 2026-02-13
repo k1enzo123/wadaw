@@ -59,76 +59,77 @@ if CoreGui:FindFirstChild("Solix Notification") then
 	CoreGui["Solix Notification"]:Destroy()
 end
 
-print("🔓 [ULTIMATE BYPASS] Starting...")
+print("💀 [TOTAL BYPASS] Initializing complete bypass system...")
 
--- Show loading screen
+-- Loading screen
 pcall(function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/debunked69/Solixreworkkeysystem/refs/heads/main/Loading%20Screen"))()
 end)
 
 wait(0.3)
 
--- ULTIMATE BYPASS: Create a completely fake LuArmor API
-print("🔓 [ULTIMATE BYPASS] Creating fake LuArmor API...")
-
--- Store the original HttpGet to use it later
-local original_httpget = game.HttpGet
-
--- Override game:HttpGet to intercept LuArmor library loading
-local old_game_httpget = game.HttpGet
-game.HttpGet = function(self, url, ...)
-	-- If it's trying to load LuArmor library, return our fake one
-	if string.find(url, "luarmor") or string.find(url, "sdkapi") then
-		print("🔓 [ULTIMATE BYPASS] LuArmor API request intercepted!")
+-- Hook loadstring to patch the script when it loads
+local old_loadstring = loadstring
+_G.loadstring = function(source, ...)
+	if type(source) == "string" then
+		-- Patch any key-related code in the loaded script
+		local patched = source
 		
-		-- Return a fake LuArmor API that always validates
-		return [[
-			local api = {}
-			api.script_id = ""
-			
-			api.check_key = function(key)
-				print("🔓 [FAKE API] check_key called - returning valid")
-				return {
-					code = "KEY_VALID",
-					data = { auth_expire = os.time() + 999999999 }
-				}
-			end
-			
-			api.load_script = function()
-				print("🔓 [FAKE API] load_script called")
-				-- Load the actual script from LuArmor using the real HttpGet
-				local real_url = "https://api.luarmor.net/files/v3/loaders/" .. api.script_id .. ".lua"
-				print("🔓 [FAKE API] Loading real script from: " .. real_url)
-				
-				local success, script_content = pcall(function()
-					return game:HttpGetAsync(real_url)
-				end)
-				
-				if success then
-					print("🔓 [FAKE API] Script downloaded, executing...")
-					loadstring(script_content)()
-				else
-					warn("🔓 [FAKE API] Failed to download script")
-				end
-			end
-			
-			return api
-		]]
+		-- Remove key expiry displays
+		patched = patched:gsub('auth_expire', 'BYPASSED_EXPIRE')
+		patched = patched:gsub('Key expires', 'BYPASSED')
+		patched = patched:gsub('expires in', 'BYPASSED')
+		
+		-- Remove any UI that shows time
+		patched = patched:gsub('TextLabel.-Text.-".-[dhm].-"', 'TextLabel.Text = ""')
+		
+		print("💀 [TOTAL BYPASS] Patched loaded script")
+		
+		return old_loadstring(patched, ...)
 	end
-	
-	-- For everything else, use the original HttpGet
-	return old_game_httpget(self, url, ...)
+	return old_loadstring(source, ...)
 end
 
-print("🔓 [ULTIMATE BYPASS] HttpGet hooked successfully")
+-- Also monitor for any ScreenGui with key timer
+task.spawn(function()
+	while wait(0.5) do
+		for _, gui in pairs(CoreGui:GetChildren()) do
+			if gui:IsA("ScreenGui") then
+				for _, obj in pairs(gui:GetDescendants()) do
+					if obj:IsA("TextLabel") then
+						local text = obj.Text
+						-- If it shows time format like "23h 44m"
+						if string.match(text, "%d+%s*h") or string.match(text, "%d+%s*m") or string.match(text, "expire") then
+							obj.Text = ""
+							obj.Visible = false
+							print("💀 [TOTAL BYPASS] Blocked key timer display")
+						end
+					end
+				end
+			end
+		end
+	end
+end)
 
--- Now load the "LuArmor" API (which is actually our fake one)
+print("💀 [TOTAL BYPASS] Hooks installed")
+
+-- Load LuArmor API
 local luarmor_api = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
 luarmor_api.script_id = script_id
 
-print("🔓 [ULTIMATE BYPASS] Fake API initialized with script_id: " .. script_id)
+-- Hook check_key
+local original_check = luarmor_api.check_key
+luarmor_api.check_key = function(...)
+	print("💀 [TOTAL BYPASS] check_key bypassed")
+	return {
+		code = "KEY_VALID",
+		data = {
+			auth_expire = os.time() + 999999999
+		}
+	}
+end
 
--- Check executor compatibility
+-- Check executor
 if not (
 	game_id == "3808223175" or game_id == "994732206" or game_id == "1511883870" 
 	or game_id == "7018190066" or game_id == "1650291138" or game_id == "3457700596" 
@@ -137,16 +138,15 @@ if not (
 	plr:Kick("This executor is not supported for this game.")
 end
 
--- Load the script
-print("🔓 [ULTIMATE BYPASS] Loading main script...")
-
+-- Load script
+print("💀 [TOTAL BYPASS] Loading main script...")
 pcall(function()
 	luarmor_api.load_script()
 end)
 
-print("🔓 [ULTIMATE BYPASS] ✅ Complete!")
+print("💀 [TOTAL BYPASS] ✅ Complete!")
 
--- Clean up any UI
+-- Final cleanup
 wait(1)
 if CoreGui:FindFirstChild("Solix ScreenGui") then
 	CoreGui["Solix ScreenGui"]:Destroy()
