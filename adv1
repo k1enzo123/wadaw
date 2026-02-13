@@ -59,6 +59,8 @@ if CoreGui:FindFirstChild("Solix Notification") then
 	CoreGui["Solix Notification"]:Destroy()
 end
 
+print("🔓 [ULTIMATE BYPASS] Starting...")
+
 -- Show loading screen
 pcall(function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/debunked69/Solixreworkkeysystem/refs/heads/main/Loading%20Screen"))()
@@ -66,72 +68,89 @@ end)
 
 wait(0.3)
 
-print("🔓 [SOLIX BYPASS] Starting complete bypass...")
+-- ULTIMATE BYPASS: Create a completely fake LuArmor API
+print("🔓 [ULTIMATE BYPASS] Creating fake LuArmor API...")
 
--- Load LuArmor API
+-- Store the original HttpGet to use it later
+local original_httpget = game.HttpGet
+
+-- Override game:HttpGet to intercept LuArmor library loading
+local old_game_httpget = game.HttpGet
+game.HttpGet = function(self, url, ...)
+	-- If it's trying to load LuArmor library, return our fake one
+	if string.find(url, "luarmor") or string.find(url, "sdkapi") then
+		print("🔓 [ULTIMATE BYPASS] LuArmor API request intercepted!")
+		
+		-- Return a fake LuArmor API that always validates
+		return [[
+			local api = {}
+			api.script_id = ""
+			
+			api.check_key = function(key)
+				print("🔓 [FAKE API] check_key called - returning valid")
+				return {
+					code = "KEY_VALID",
+					data = { auth_expire = os.time() + 999999999 }
+				}
+			end
+			
+			api.load_script = function()
+				print("🔓 [FAKE API] load_script called")
+				-- Load the actual script from LuArmor using the real HttpGet
+				local real_url = "https://api.luarmor.net/files/v3/loaders/" .. api.script_id .. ".lua"
+				print("🔓 [FAKE API] Loading real script from: " .. real_url)
+				
+				local success, script_content = pcall(function()
+					return game:HttpGetAsync(real_url)
+				end)
+				
+				if success then
+					print("🔓 [FAKE API] Script downloaded, executing...")
+					loadstring(script_content)()
+				else
+					warn("🔓 [FAKE API] Failed to download script")
+				end
+			end
+			
+			return api
+		]]
+	end
+	
+	-- For everything else, use the original HttpGet
+	return old_game_httpget(self, url, ...)
+end
+
+print("🔓 [ULTIMATE BYPASS] HttpGet hooked successfully")
+
+-- Now load the "LuArmor" API (which is actually our fake one)
 local luarmor_api = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
 luarmor_api.script_id = script_id
 
-print("🔓 [SOLIX BYPASS] LuArmor API loaded")
+print("🔓 [ULTIMATE BYPASS] Fake API initialized with script_id: " .. script_id)
 
--- CRITICAL: Hook the check_key function BEFORE anything else
-local original_check = luarmor_api.check_key
-
-luarmor_api.check_key = function(key)
-	print("🔓 [SOLIX BYPASS] Key check intercepted and bypassed!")
-	return {
-		code = "KEY_VALID",
-		data = {
-			auth_expire = os.time() + 999999999 -- Never expires
-		}
-	}
-end
-
-print("🔓 [SOLIX BYPASS] Key validation hooked successfully")
-
--- Check for executor compatibility
+-- Check executor compatibility
 if not (
-	game_id == "3808223175" -- Jujutsu Infinite
-		or game_id == "994732206" -- Blox Fruits
-		or game_id == "1511883870" -- Shindo Life
-		or game_id == "7018190066" -- Dead Rails
-		or game_id == "1650291138" -- Demon Fall
-		or game_id == "3457700596" -- Fruit Battlegrounds
-		or game_id == "7671049560" -- The Forge
-		or game_id == "9363735110" -- Escape Tsunami For Brainrots!
-	)
-		and Workspace:GetAttribute("low") then
+	game_id == "3808223175" or game_id == "994732206" or game_id == "1511883870" 
+	or game_id == "7018190066" or game_id == "1650291138" or game_id == "3457700596" 
+	or game_id == "7671049560" or game_id == "9363735110"
+) and Workspace:GetAttribute("low") then
 	plr:Kick("This executor is not supported for this game.")
 end
 
--- Load the actual script WITHOUT any key validation
-print("🔓 [SOLIX BYPASS] Loading main script...")
+-- Load the script
+print("🔓 [ULTIMATE BYPASS] Loading main script...")
 
-local success, err = pcall(function()
+pcall(function()
 	luarmor_api.load_script()
 end)
 
-if success then
-	print("🔓 [SOLIX BYPASS] ✅ Script loaded successfully!")
-	print("🔓 [SOLIX BYPASS] ✅ Key system completely bypassed!")
-	
-	-- Destroy any UI that might have been created
-	wait(1)
-	if CoreGui:FindFirstChild("Solix ScreenGui") then
-		CoreGui["Solix ScreenGui"]:Destroy()
-		print("🔓 [SOLIX BYPASS] UI cleaned up")
-	end
-	if CoreGui:FindFirstChild("Solix Notification") then
-		CoreGui["Solix Notification"]:Destroy()
-	end
-else
-	warn("🔓 [SOLIX BYPASS] ❌ Error loading script: " .. tostring(err))
-end
+print("🔓 [ULTIMATE BYPASS] ✅ Complete!")
 
--- IMPORTANT: Do NOT run the validation loop from original script
--- The original script has this at the end which we are NOT including:
--- spawn(function()
---     while task.wait(0.3) do
---         if saved_key and ValidateKey(saved_key) then return end
---     end
--- end)
+-- Clean up any UI
+wait(1)
+if CoreGui:FindFirstChild("Solix ScreenGui") then
+	CoreGui["Solix ScreenGui"]:Destroy()
+end
+if CoreGui:FindFirstChild("Solix Notification") then
+	CoreGui["Solix Notification"]:Destroy()
+end
