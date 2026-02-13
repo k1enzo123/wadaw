@@ -51,7 +51,6 @@ for _, exec in ipairs({"Xeno", "Solara"}) do
 	end
 end
 
--- Clean up any existing UI
 if CoreGui:FindFirstChild("Solix ScreenGui") then
 	CoreGui["Solix ScreenGui"]:Destroy()
 end
@@ -65,71 +64,74 @@ pcall(function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/debunked69/Solixreworkkeysystem/refs/heads/main/Loading%20Screen"))()
 end)
 
-wait(0.5)
+wait(0.3)
 
-print("[FULL BYPASS] Initializing...")
+print("🔓 [SOLIX BYPASS] Starting complete bypass...")
 
--- Load LuArmor library
+-- Load LuArmor API
 local luarmor_api = loadstring(game:HttpGet("https://sdkapi-public.luarmor.net/library.lua"))()
 luarmor_api.script_id = script_id
 
--- COMPLETE BYPASS: Hook all validation functions
-print("[FULL BYPASS] Hooking validation functions...")
+print("🔓 [SOLIX BYPASS] LuArmor API loaded")
 
--- Bypass check_key
-if luarmor_api.check_key then
-	luarmor_api.check_key = function(...)
-		return {
-			code = "KEY_VALID",
-			data = {
-				auth_expire = os.time() + 999999999
-			}
+-- CRITICAL: Hook the check_key function BEFORE anything else
+local original_check = luarmor_api.check_key
+
+luarmor_api.check_key = function(key)
+	print("🔓 [SOLIX BYPASS] Key check intercepted and bypassed!")
+	return {
+		code = "KEY_VALID",
+		data = {
+			auth_expire = os.time() + 999999999 -- Never expires
 		}
-	end
+	}
 end
 
--- Bypass any validate function
-if luarmor_api.validate then
-	luarmor_api.validate = function(...) return true end
+print("🔓 [SOLIX BYPASS] Key validation hooked successfully")
+
+-- Check for executor compatibility
+if not (
+	game_id == "3808223175" -- Jujutsu Infinite
+		or game_id == "994732206" -- Blox Fruits
+		or game_id == "1511883870" -- Shindo Life
+		or game_id == "7018190066" -- Dead Rails
+		or game_id == "1650291138" -- Demon Fall
+		or game_id == "3457700596" -- Fruit Battlegrounds
+		or game_id == "7671049560" -- The Forge
+		or game_id == "9363735110" -- Escape Tsunami For Brainrots!
+	)
+		and Workspace:GetAttribute("low") then
+	plr:Kick("This executor is not supported for this game.")
 end
 
--- Bypass any auth function
-if luarmor_api.auth then
-	luarmor_api.auth = function(...) return true end
-end
+-- Load the actual script WITHOUT any key validation
+print("🔓 [SOLIX BYPASS] Loading main script...")
 
--- Bypass any verify function
-if luarmor_api.verify then
-	luarmor_api.verify = function(...) return true end
-end
-
--- Create a fake saved key to prevent UI from showing
-local Config_File = "solixhub/savedkey.txt"
-if not isfolder("solixhub") then
-	makefolder("solixhub")
-end
-
--- Write a fake valid key
-writefile(Config_File, "BYPASS" .. string.rep("0", 26)) -- 32 chars fake key
-
-print("[FULL BYPASS] Loading main script...")
-
--- Load the actual script
-local success, error_msg = pcall(function()
+local success, err = pcall(function()
 	luarmor_api.load_script()
 end)
 
 if success then
-	print("[FULL BYPASS] ✅ Script loaded successfully!")
+	print("🔓 [SOLIX BYPASS] ✅ Script loaded successfully!")
+	print("🔓 [SOLIX BYPASS] ✅ Key system completely bypassed!")
 	
-	-- Clean up UI again in case it was created
-	task.wait(0.5)
+	-- Destroy any UI that might have been created
+	wait(1)
 	if CoreGui:FindFirstChild("Solix ScreenGui") then
 		CoreGui["Solix ScreenGui"]:Destroy()
+		print("🔓 [SOLIX BYPASS] UI cleaned up")
 	end
 	if CoreGui:FindFirstChild("Solix Notification") then
 		CoreGui["Solix Notification"]:Destroy()
 	end
 else
-	warn("[FULL BYPASS] ❌ Failed to load script: " .. tostring(error_msg))
+	warn("🔓 [SOLIX BYPASS] ❌ Error loading script: " .. tostring(err))
 end
+
+-- IMPORTANT: Do NOT run the validation loop from original script
+-- The original script has this at the end which we are NOT including:
+-- spawn(function()
+--     while task.wait(0.3) do
+--         if saved_key and ValidateKey(saved_key) then return end
+--     end
+-- end)
